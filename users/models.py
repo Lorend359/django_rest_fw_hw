@@ -1,14 +1,18 @@
+from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.conf import settings
+
 from courses.models import Course, Lesson
 
 
 class CustomUserManager(BaseUserManager):
+    """Менеджер для кастомной модели пользователя."""
+
     def create_user(self, email, password=None, **extra_fields):
+        """Создание обычного пользователя."""
         if not email:
-            raise ValueError('Email must be set')
+            raise ValueError("Email must be set")
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
@@ -16,22 +20,24 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('is_active', True)
+        """Создание суперпользователя."""
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)
 
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
 
         return self.create_user(email, password, **extra_fields)
 
 
 class CustomUser(AbstractUser):
+    """Кастомная модель пользователя, используется email вместо username."""
+
     username = None
     email = models.EmailField(unique=True)
-
     phone = models.CharField(max_length=20, blank=True)
     city = models.CharField(max_length=100, blank=True)
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
@@ -45,8 +51,9 @@ class CustomUser(AbstractUser):
         return self.email
 
 
-
 class Payment(models.Model):
+    """Модель платежа за курс или урок."""
+
     PAYMENT_METHOD_CHOICES = [
         ("cash", "Наличные"),
         ("transfer", "Перевод на счёт"),
@@ -61,4 +68,3 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"{self.user.email} — {self.amount} ₽ — {self.payment_method}"
-
