@@ -15,7 +15,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         elif self.action in ['update', 'partial_update']:
             self.permission_classes = [IsAuthenticated, IsModerator]
         elif self.action in ['create', 'destroy']:
-            self.permission_classes = [IsAuthenticated]
+            self.permission_classes = [IsAuthenticated, ~IsModerator]
         return [permission() for permission in self.permission_classes]
 
 
@@ -27,7 +27,7 @@ class LessonListCreateAPIView(generics.ListCreateAPIView):
         if self.request.method == 'GET':
             return [IsAuthenticated()]
         elif self.request.method == 'POST':
-            return [IsAuthenticated()]  # только обычные пользователи, не модераторы
+            return [IsAuthenticated(), ~IsModerator()]
 
 class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lesson.objects.all()
@@ -37,5 +37,5 @@ class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['PUT', 'PATCH']:
             return [IsAuthenticated(), IsModerator()]
         elif self.request.method == 'DELETE':
-            return [IsAuthenticated()]  # без модераторов
+            return [IsAuthenticated()]
         return [IsAuthenticated()]
