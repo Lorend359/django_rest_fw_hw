@@ -1,9 +1,10 @@
 from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
 from users.permissions import IsNotModerator, IsOwner
-
-from .models import Course, Lesson
+from .models import Course, Lesson, Subscription
 from .serializers import CourseSerializer, LessonSerializer
 
 
@@ -68,3 +69,28 @@ class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
         elif self.request.method == "DELETE":
             return [IsAuthenticated(), IsOwner()]
         return [IsAuthenticated()]
+
+
+class SubscriptionToggleAPIView(APIView):
+    """
+    APIView для подписки или отписки от курса.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        """
+        Добавляет или удаляет подписку на курс.
+        """
+        user = request.user
+        course_id = request.data.get("course_id")
+        course = get_object_or_404(Course, id=course_id)
+
+        subscription = Subscription.objects.filter(user=user, course=course)
+
+        if subscription.exists():
+            subscription.delete()
+            return Response({"message": "Подписка удалена"})
+        else:
+            Subscription.objects.create(user=user, course=course)
+            return Response({"message": "Подписка добавлена"})
