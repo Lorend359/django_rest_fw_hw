@@ -44,14 +44,15 @@ class LessonListCreateAPIView(generics.ListCreateAPIView):
 
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    pagination_class = StandardPagination
 
     def get_permissions(self):
         """Настройка прав доступа для GET и POST запросов."""
         if self.request.method == "GET":
-            return [IsAuthenticated()]
+            self.permission_classes = [IsAuthenticated]
         elif self.request.method == "POST":
-            return [IsAuthenticated(), IsNotModerator()]
-        return [IsAuthenticated()]
+            self.permission_classes = [IsAuthenticated, IsNotModerator]
+        return [permission() for permission in self.permission_classes]
 
     def perform_create(self, serializer):
         """Присваивает текущего пользователя как владельца урока."""
@@ -67,23 +68,21 @@ class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     def get_permissions(self):
         """Настройка прав доступа для PATCH/PUT/DELETE запросов."""
         if self.request.method in ["PUT", "PATCH"]:
-            return [IsAuthenticated(), IsNotModerator() | IsOwner()]
+            self.permission_classes = [IsAuthenticated, IsNotModerator | IsOwner]
         elif self.request.method == "DELETE":
-            return [IsAuthenticated(), IsOwner()]
-        return [IsAuthenticated()]
+            self.permission_classes = [IsAuthenticated, IsOwner]
+        else:
+            self.permission_classes = [IsAuthenticated]
+        return [permission() for permission in self.permission_classes]
 
 
 class SubscriptionToggleAPIView(APIView):
-    """
-    APIView для подписки или отписки от курса.
-    """
+    """APIView для подписки или отписки от курса."""
 
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        """
-        Добавляет или удаляет подписку на курс.
-        """
+        """Добавляет или удаляет подписку на курс."""
         user = request.user
         course_id = request.data.get("course_id")
         course = get_object_or_404(Course, id=course_id)

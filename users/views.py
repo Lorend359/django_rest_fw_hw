@@ -18,7 +18,6 @@ class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     """
 
     queryset = CustomUser.objects.all()
-    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.request.user == self.get_object():
@@ -27,8 +26,11 @@ class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
     def get_permissions(self):
         if self.request.method in ["PUT", "PATCH"]:
-            return [IsAuthenticated(), IsProfileOwner()]
-        return [IsAuthenticated()]
+            self.permission_classes = [IsAuthenticated, IsProfileOwner]
+        else:
+            self.permission_classes = [IsAuthenticated]
+        return [permission() for permission in self.permission_classes]
+
 
 
 class UserCreateAPIView(generics.CreateAPIView):

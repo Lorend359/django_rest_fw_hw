@@ -6,7 +6,9 @@ class IsModerator(BasePermission):
 
     def has_permission(self, request, view):
         return (
-            request.user and request.user.is_authenticated and request.user.groups.filter(name="Модераторы").exists()
+            request.user
+            and request.user.is_authenticated
+            and request.user.groups.filter(name="Модераторы").exists()
         )
 
 
@@ -25,8 +27,11 @@ class IsProfileOwner(BasePermission):
 
 
 class IsNotModerator(BasePermission):
-    """
-    Доступ разрешён, если пользователь НЕ является модератором.
-    """
+    """Разрешение: пользователь НЕ должен быть в группе 'Модераторы'."""
+
     def has_permission(self, request, view):
-        return not request.user.groups.filter(name="Модераторы").exists()
+        return (
+            request.user
+            and request.user.is_authenticated
+            and not request.user.groups.filter(name="Модераторы").exists()
+        )
