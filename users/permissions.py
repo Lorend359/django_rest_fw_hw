@@ -22,3 +22,11 @@ class IsProfileOwner(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return obj == request.user
+
+
+class IsNotModerator(BasePermission):
+    """
+    Доступ разрешён, если пользователь НЕ является модератором.
+    """
+    def has_permission(self, request, view):
+        return not request.user.groups.filter(name="Модераторы").exists()

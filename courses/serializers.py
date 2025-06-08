@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import Course, Lesson
+from .validators import validate_video_url
 
 
 class LessonShortSerializer(serializers.ModelSerializer):
@@ -45,6 +46,10 @@ class LessonSerializer(serializers.ModelSerializer):
     Используется для отображения и редактирования всех полей урока.
     """
 
+    video_url = serializers.URLField(required=False, validators=[validate_video_url])
+
     class Meta:
         model = Lesson
-        fields = "__all__"
+        fields = '__all__'
+        read_only_fields = ['owner']
+
