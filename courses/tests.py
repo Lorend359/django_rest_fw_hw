@@ -1,9 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from django.contrib.auth import get_user_model
 
-from courses.models import Lesson, Course, Subscription
+from courses.models import Course, Lesson, Subscription
 
 User = get_user_model()
 
@@ -20,7 +20,7 @@ class LessonAPITestCase(APITestCase):
             "title": "Тестовый урок",
             "description": "Описание",
             "course": self.course.id,
-            "video_url": "https://youtube.com/watch?v=abc123"
+            "video_url": "https://youtube.com/watch?v=abc123",
         }
         response = self.client.post(reverse("courses:lesson_create_list"), data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -32,7 +32,7 @@ class LessonAPITestCase(APITestCase):
             description="Описание",
             course=self.course,
             video_url="https://youtube.com/watch?v=abc123",
-            owner=self.user
+            owner=self.user,
         )
         response = self.client.get(reverse("courses:lesson_create_list"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -45,7 +45,7 @@ class LessonAPITestCase(APITestCase):
             description="Описание",
             course=self.course,
             video_url="https://youtube.com/watch?v=abc123",
-            owner=self.user
+            owner=self.user,
         )
         url = reverse("courses:lesson-detail", args=[lesson.id])
         response = self.client.get(url)
@@ -59,7 +59,7 @@ class LessonAPITestCase(APITestCase):
             description="Описание",
             course=self.course,
             video_url="https://youtube.com/watch?v=abc123",
-            owner=self.user
+            owner=self.user,
         )
         url = reverse("courses:lesson-detail", args=[lesson.id])
         response = self.client.patch(url, {"title": "Новое"}, format="json")
@@ -73,7 +73,7 @@ class LessonAPITestCase(APITestCase):
             description="Описание",
             course=self.course,
             video_url="https://youtube.com/watch?v=abc123",
-            owner=self.user
+            owner=self.user,
         )
         url = reverse("courses:lesson-detail", args=[lesson.id])
         response = self.client.delete(url)

@@ -32,7 +32,6 @@ class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         return [permission() for permission in self.permission_classes]
 
 
-
 class UserCreateAPIView(generics.CreateAPIView):
     """Регистрация нового пользователя."""
 
