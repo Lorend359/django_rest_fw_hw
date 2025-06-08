@@ -52,7 +52,7 @@ class PaymentListAPIView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ["course", "lesson", "payment_method"]
     ordering_fields = ["payment_date"]
-    ordering = ["-payment_date"]  # новые сверху
+    ordering = ["-payment_date"]
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
