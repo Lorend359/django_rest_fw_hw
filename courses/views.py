@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from users.permissions import IsNotModerator, IsOwner
 from .models import Course, Lesson, Subscription
 from .serializers import CourseSerializer, LessonSerializer
+from .paginators import StandardPagination
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -13,6 +14,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    pagination_class = StandardPagination
 
     def get_permissions(self):
         """Настройка прав доступа для разных действий с курсами."""
