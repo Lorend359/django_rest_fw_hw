@@ -12,6 +12,8 @@ psycopg = {extras = ["binary"], version = "^3.2.9"}
 django-environ = "^0.12.0"
 pillow = "^11.2.1"
 django-filter = "^25.1"
+drf-spectacular = "^0.28.0"
+drf-yasg = "^1.21.10"
 
 
 [tool.poetry.group.lint.dependencies]

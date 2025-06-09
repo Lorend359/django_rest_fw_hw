@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "users",
     "courses",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -157,3 +158,7 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 
 AUTH_USER_MODEL = "users.CustomUser"
+
+
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
+STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY")
