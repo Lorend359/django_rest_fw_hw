@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from .models import Course, Lesson
+from .models import Course, Lesson, Subscription
+from .validators import validate_video_url
 
 
 class LessonShortSerializer(serializers.ModelSerializer):
@@ -25,6 +26,7 @@ class CourseSerializer(serializers.ModelSerializer):
 
     lesson_count = serializers.SerializerMethodField()
     lessons = LessonShortSerializer(many=True, read_only=True)
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
@@ -32,10 +34,15 @@ class CourseSerializer(serializers.ModelSerializer):
         read_only_fields = ["owner"]
 
     def get_lesson_count(self, obj):
-        """
-        Возвращает количество уроков в курсе.
-        """
+        """Возвращает количество уроков в курсе."""
         return obj.lessons.count()
+
+    def get_is_subscribed(self, obj):
+        """Определяет, подписан ли текущий пользователь на курс."""
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            return Subscription.objects.filter(user=request.user, course=obj).exists()
+        return False
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -45,6 +52,9 @@ class LessonSerializer(serializers.ModelSerializer):
     Используется для отображения и редактирования всех полей урока.
     """
 
+    video_url = serializers.URLField(required=False, validators=[validate_video_url])
+
     class Meta:
         model = Lesson
         fields = "__all__"
+        read_only_fields = ["owner"]

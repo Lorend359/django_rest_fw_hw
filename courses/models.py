@@ -36,3 +36,23 @@ class Lesson(models.Model):
     def __str__(self):
         """Возвращает строковое представление урока с указанием курса."""
         return f"{self.title} ({self.course.title})"
+
+
+class Subscription(models.Model):
+    """
+    Модель подписки пользователя на курс.
+
+    Содержит ссылку на пользователя и курс. Один пользователь не может быть подписан на один курс дважды.
+    """
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="subscriptions")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="subscriptions")
+
+    class Meta:
+        unique_together = ("user", "course")
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
+
+    def __str__(self):
+        """Возвращает строковое представление подписки."""
+        return f"{self.user.email} -> {self.course.title}"
