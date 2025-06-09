@@ -4,19 +4,24 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 from .models import CustomUser, Payment
 from .permissions import IsProfileOwner
 from .serializers import PaymentSerializer, PrivateUserSerializer, PublicUserSerializer, UserSerializer
 
+from courses.models import Course
+from courses.services.stripe_service import (
+    create_stripe_product,
+    create_stripe_price,
+    create_stripe_session
+)
+
 
 class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    """Получение и редактирование профиля пользователя.
-
-    Публичный просмотр — для всех,
-    Полный доступ — только для владельца профиля.
-    """
-
+    """Получение и редактирование профиля пользователя."""
     queryset = CustomUser.objects.all()
 
     def get_serializer_class(self):
@@ -34,18 +39,13 @@ class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
 class UserCreateAPIView(generics.CreateAPIView):
     """Регистрация нового пользователя."""
-
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
 
 class PaymentListAPIView(generics.ListAPIView):
-    """Список всех платежей с фильтрацией и сортировкой.
-
-    Доступно только авторизованным пользователям.
-    """
-
+    """Список всех платежей с фильтрацией и сортировкой."""
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticated]
@@ -57,7 +57,6 @@ class PaymentListAPIView(generics.ListAPIView):
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """Переопределённый сериализатор JWT для включения email и авторизации по нему."""
-
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
@@ -77,5 +76,31 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     """Представление для получения JWT-токенов по email и паролю."""
-
     serializer_class = CustomTokenObtainPairSerializer
+
+
+class CreatePaymentAPIView(APIView):
+    """Создание Stripe-сессии и сохранение платежа."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        course_id = request.data.get("course_id")
+        course = get_object_or_404(Course, id=course_id)
+
+        product_id = create_stripe_product(course.title)
+        price_id = create_stripe_price(product_id, course.price)
+
+        success_url = "http://127.0.0.1:8000/success/"
+        cancel_url = "http://127.0.0.1:8000/cancel/"
+
+        session_url = create_stripe_session(price_id, success_url, cancel_url)
+
+        Payment.objects.create(
+            user=request.user,
+            course=course,
+            amount=course.price,
+            payment_method="card",
+            stripe_payment_url=session_url,
+        )
+
+        return Response({"payment_url": session_url})

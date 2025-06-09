@@ -6,17 +6,19 @@ class Course(models.Model):
     """
     Модель курса.
 
-    Содержит информацию о курсе: название, превью, описание и владельца.
+    Содержит информацию о курсе: название, превью, описание, цена и владельца.
     """
 
     title = models.CharField(max_length=255)
     preview = models.ImageField(upload_to="course_previews/", blank=True, null=True)
     description = models.TextField(blank=True)
+    price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    price_id = models.CharField(max_length=500, blank=True, null=True)  # ⬅️ вот это добавь
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="courses")
 
     def __str__(self):
-        """Возвращает строковое представление курса (его название)."""
         return self.title
+
 
 
 class Lesson(models.Model):

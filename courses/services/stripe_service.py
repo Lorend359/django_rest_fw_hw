@@ -12,7 +12,7 @@ def create_stripe_product(name: str) -> str:
 def create_stripe_price(product_id: str, amount: float, currency: str = "usd") -> str:
     price = stripe.Price.create(
         product=product_id,
-        unit_amount=int(amount * 100),  # копейки
+        unit_amount=int(amount * 100),
         currency=currency,
     )
     return price.id
