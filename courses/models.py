@@ -20,7 +20,6 @@ class Course(models.Model):
         return self.title
 
 
-
 class Lesson(models.Model):
     """
     Модель урока.

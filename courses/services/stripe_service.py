@@ -32,3 +32,8 @@ def create_stripe_session(price_id: str, success_url: str, cancel_url: str) -> s
         cancel_url=cancel_url,
     )
     return session.url
+
+
+def get_stripe_session_status(session_id: str) -> str:
+    session = stripe.checkout.Session.retrieve(session_id)
+    return session.payment_status
