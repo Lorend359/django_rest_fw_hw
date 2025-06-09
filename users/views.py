@@ -1,7 +1,10 @@
 import stripe
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, serializers
+from rest_framework.exceptions import NotFound
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -10,8 +13,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from courses.models import Course
-from courses.services.stripe_service import (create_stripe_price, create_stripe_product, create_stripe_session,
-                                             get_stripe_session_status)
+from courses.services.stripe_services import (create_stripe_price, create_stripe_product, create_stripe_session,
+                                              get_stripe_session_status)
 
 from .models import CustomUser, Payment
 from .permissions import IsProfileOwner
@@ -87,6 +90,23 @@ class CreatePaymentAPIView(APIView):
 
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["course_id"],
+            properties={
+                "course_id": openapi.Schema(type=openapi.TYPE_INTEGER, description="ID курса"),
+            },
+        ),
+        responses={
+            200: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    "payment_url": openapi.Schema(type=openapi.TYPE_STRING, description="Ссылка на оплату"),
+                },
+            )
+        },
+    )
     def post(self, request, *args, **kwargs):
         course_id = request.data.get("course_id")
         course = get_object_or_404(Course, id=course_id)
@@ -97,36 +117,47 @@ class CreatePaymentAPIView(APIView):
         success_url = "http://127.0.0.1:8000/success/"
         cancel_url = "http://127.0.0.1:8000/cancel/"
 
-        session_url = create_stripe_session(price_id, success_url, cancel_url)
-
-        session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            line_items=[{"price": price_id, "quantity": 1}],
-            mode="payment",
-            success_url=success_url,
-            cancel_url=cancel_url,
-        )
+        session = create_stripe_session(price_id, success_url, cancel_url)
 
         Payment.objects.create(
             user=request.user,
             course=course,
             amount=course.price,
             payment_method="card",
-            stripe_payment_url=session.url,
-            stripe_session_id=session.id,  # <-- Добавь это
+            stripe_payment_url=session,
+            stripe_session_id=session.split("/")[-1],  # или session.id, если возвращаешь объект
         )
 
-        return Response({"payment_url": session_url})
+        return Response({"payment_url": session})
 
 
 class StripePaymentStatusAPIView(APIView):
+    """Получение статуса Stripe-сессии по её ID."""
+
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["session_id"],
+            properties={
+                "session_id": openapi.Schema(type=openapi.TYPE_STRING, description="ID сессии Stripe"),
+            },
+        ),
+        responses={
+            200: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    "status": openapi.Schema(type=openapi.TYPE_STRING, description="Статус оплаты"),
+                },
+            )
+        },
+    )
     def post(self, request, *args, **kwargs):
         session_id = request.data.get("session_id")
 
         if not session_id:
-            return Response({"error": "session_id is required"}, status=400)
+            raise NotFound("session_id is required")
 
         try:
             status = get_stripe_session_status(session_id)
