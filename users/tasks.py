@@ -4,6 +4,8 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 
+from .models import CustomUser
+
 
 @shared_task
 def send_course_update_email(course_id):
@@ -28,3 +30,14 @@ def send_course_update_email(course_id):
             recipient_list=[sub.user.email],
             fail_silently=True,
         )
+
+
+@shared_task
+def deactivate_inactive_users():
+    """Деактивирует пользователей, не заходивших больше месяца."""
+
+    one_month_ago = timezone.now() - timedelta(days=30)
+    users_to_deactivate = CustomUser.objects.filter(is_active=True, last_login__lt=one_month_ago)
+
+    count = users_to_deactivate.update(is_active=False)
+    print(f"🛑 Деактивировано пользователей: {count}")
