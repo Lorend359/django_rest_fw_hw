@@ -9,6 +9,7 @@ from users.permissions import IsNotModerator, IsOwner
 from .models import Course, Lesson, Subscription
 from .paginators import StandardPagination
 from .serializers import CourseSerializer, LessonSerializer
+from users.tasks import send_course_update_email
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -34,11 +35,17 @@ class CourseViewSet(viewsets.ModelViewSet):
         """Присваивает текущего пользователя как владельца курса."""
         serializer.save(owner=self.request.user)
 
+    def perform_update(self, serializer):
+        """Обновляет курс и запускает отправку уведомлений."""
+        course = serializer.save()
+        send_course_update_email.delay(course.id)
+
     def destroy(self, request, *args, **kwargs):
         """Проверяет права перед удалением курса."""
         instance = self.get_object()
         self.check_object_permissions(request, instance)
         return super().destroy(request, *args, **kwargs)
+
 
 
 class LessonListCreateAPIView(generics.ListCreateAPIView):
