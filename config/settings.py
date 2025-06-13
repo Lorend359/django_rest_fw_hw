@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
-
+from .celery import app as celery_app
 import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "users",
     "courses",
     "drf_yasg",
+    'django_celery_beat',
+
 ]
 
 MIDDLEWARE = [
@@ -162,3 +164,13 @@ AUTH_USER_MODEL = "users.CustomUser"
 
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
 STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY")
+
+
+__all__ = ("celery_app",)
+
+
+CELERY_BROKER_URL = env("REDIS_URL")
+CELERY_RESULT_BACKEND = env("REDIS_URL")
+CELERY_TIMEZONE = "Europe/Moscow"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
