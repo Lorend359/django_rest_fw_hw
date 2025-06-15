@@ -15,6 +15,7 @@ class Course(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     price_id = models.CharField(max_length=500, blank=True, null=True)  # ⬅️ вот это добавь
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="courses")
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title

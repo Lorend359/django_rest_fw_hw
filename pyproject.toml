@@ -13,6 +13,9 @@ django-environ = "^0.12.0"
 pillow = "^11.2.1"
 django-filter = "^25.1"
 drf-yasg = "^1.21.10"
+celery = "^5.5.3"
+redis = "^6.2.0"
+django-celery-beat = "^2.8.1"
 
 
 [tool.poetry.group.lint.dependencies]
@@ -20,6 +23,10 @@ flake8 = "^7.2.0"
 mypy = "^1.16.0"
 black = "^25.1.0"
 isort = "^6.0.1"
+
+
+[tool.poetry.group.dev.dependencies]
+eventlet = "^0.40.0"
 
 [build-system]
 requires = ["poetry-core"]
