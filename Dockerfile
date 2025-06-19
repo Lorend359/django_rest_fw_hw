@@ -18,10 +18,10 @@ ENV PATH="/root/.local/bin:$PATH"
 WORKDIR /app
 
 # Копируем зависимости и README
-COPY pyproject.toml poetry.lock* README.md /app/
+COPY pyproject.toml poetry.lock* /app/
 
 # Устанавливаем зависимости без виртуального окружения
-RUN poetry config virtualenvs.create false && poetry install --no-root --no-interaction --no-ansi
+RUN poetry config virtualenvs.create false && poetry install --no-root --no-interaction --no-ansi --only main
 
 # Копируем оставшийся код проекта
 COPY . /app/
