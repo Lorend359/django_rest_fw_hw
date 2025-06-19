@@ -1,3 +1,4 @@
+
 # Django REST Framework: Платформа онлайн-обучения
 
 ## О проекте
@@ -77,8 +78,29 @@ API предоставляет:
 * Stripe
 * Swagger / drf-yasg
 * Postman (для тестирования)
+* Docker + Docker Compose
 
-## Как запустить
+## Как запустить с помощью Docker
+
+1. Убедитесь, что установлен Docker и Docker Compose.
+
+2. Создайте `.env` файл в корне проекта (если ещё нет) по шаблону `.env.example` и заполните нужные переменные.
+
+3. Соберите и запустите проект командой:
+
+```bash
+docker-compose up --build
+```
+
+4. Проверка работоспособности сервисов:
+
+* Backend (Django): http://localhost:8000/
+* Swagger UI: http://localhost:8000/swagger/
+* ReDoc: http://localhost:8000/redoc/
+* PostgreSQL: порт 5432
+* Redis: порт 6379
+
+## Как запустить вручную без Docker
 
 1. Установить зависимости:
 
@@ -111,8 +133,6 @@ poetry run celery -A config worker -l info -P eventlet
 ```bash
 poetry run celery -A config beat -l info
 ```
-
-7. Использовать Postman для отправки запросов к API.
 
 ---
 
