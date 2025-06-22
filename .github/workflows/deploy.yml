@@ -33,6 +33,8 @@ jobs:
         poetry run python manage.py test
       env:
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
 
 
     - name: Deploy to Server via SSH
