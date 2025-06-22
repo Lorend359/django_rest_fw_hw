@@ -31,6 +31,9 @@ jobs:
     - name: Run tests
       run: |
         poetry run python manage.py test
+      env:
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+
 
     - name: Deploy to Server via SSH
       if: success()
