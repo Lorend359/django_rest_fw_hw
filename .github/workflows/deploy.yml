@@ -3,6 +3,8 @@ name: Django CI/CD
 on:
   push:
     branches:
+      - develope
+      - feature/hw
       - feature/hw_2
 
 jobs:
@@ -67,6 +69,6 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           cd ~/project
-          git pull origin feature/hw
+          git pull origin ${{ github.ref_name }}
           docker-compose down
           docker-compose up -d --build

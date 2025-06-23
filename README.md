@@ -1,4 +1,3 @@
-
 # Django REST Framework: Платформа онлайн-обучения
 
 ## О проекте
@@ -66,6 +65,15 @@ API предоставляет:
 
   * Деактивация пользователей, не заходивших более месяца (`is_active = False`).
 
+### Финальная работа: Docker и CI/CD
+
+* Контейнеризированы все компоненты проекта (Django, PostgreSQL, Redis, Celery, Nginx).
+* Настроен `docker-compose.yml` для запуска всех сервисов.
+* Добавлены `Dockerfile`, `.env.example`, `nginx.conf`.
+* Настроен CI/CD через GitHub Actions:
+  * Установка зависимостей, линтинг и тесты,
+  * Автоматический деплой на удалённый сервер по SSH при push в ветки `develope`, `feature/hw`, `feature/hw_2`.
+
 ## Используемый стек
 
 * Python 3.12
@@ -79,22 +87,17 @@ API предоставляет:
 * Swagger / drf-yasg
 * Postman (для тестирования)
 * Docker + Docker Compose
+* GitHub Actions
 
 ## Как запустить с помощью Docker
 
 1. Убедитесь, что установлен Docker и Docker Compose.
-
 2. Создайте `.env` файл в корне проекта (если ещё нет) по шаблону `.env.example` и заполните нужные переменные.
-
 3. Соберите и запустите проект командой:
 
 ```bash
 docker-compose up --build
 ```
-
-Проект запускается с помощью стандартной команды `runserver` внутри контейнера.  
-Это допустимо в рамках учебного проекта и CI/CD-практики,  
-но в продакшене рекомендуется использовать связку Gunicorn + Nginx.
 
 4. Проверка работоспособности сервисов:
 
@@ -106,60 +109,35 @@ docker-compose up --build
 
 ## Как запустить вручную без Docker
 
-1. Установить зависимости:
-
 ```bash
 poetry install
-```
-
-2. Создать и применить миграции:
-
-```bash
 poetry run python manage.py migrate
-```
-
-3. Запустить сервер разработки:
-
-```bash
 poetry run python manage.py runserver
 ```
 
-4. Запустить Redis (если не запущен).
-
-5. Запустить Celery worker:
+Дополнительно:
 
 ```bash
 poetry run celery -A config worker -l info -P eventlet
-```
-
-6. Запустить Celery Beat:
-
-```bash
 poetry run celery -A config beat -l info
 ```
 
 ## CI/CD и деплой на удалённый сервер
 
-Для автоматизации тестирования и деплоя настроен GitHub Actions.
+* При пуше в ветку `develope`, `feature/hw` или `feature/hw_2` запускается GitHub Actions workflow.
+* Прогоняются тесты, устанавливаются зависимости и запускается сборка проекта в контейнере.
+* При успехе выполняется деплой на сервер через SSH:
+  * `git pull`
+  * `docker-compose up -d --build`
 
-- Workflow запускается при каждом `push` в ветку `feature/hw`.
-- Выполняется установка зависимостей и запуск тестов.
-- Если тесты проходят — происходит автоматический деплой на удалённый сервер по SSH.
-- На сервере выполняется `git pull` и `docker-compose up --build`.
-- Все чувствительные данные подключаются через GitHub Secrets.
+Секреты (`SECRET_KEY`, `DATABASE_URL`, `STRIPE_KEYS`, `SSH_PRIVATE_KEY`) хранятся в GitHub Secrets.
 
-### Подготовка удалённого сервера (Yandex Cloud)
+### Подготовка сервера
 
-1. Установите Docker и Docker Compose:
-   ```bash
-   sudo apt update && sudo apt install docker.io docker-compose -y
-   ```
-2. Создайте пользователя (например `lorend`) и настройте SSH-доступ (публичный ключ должен быть в `~/.ssh/authorized_keys`).
-3. Клонируйте репозиторий на сервер.
-4. Убедитесь, что `.env` корректно заполнен (на основе `.env.example`).
+```bash
+sudo apt update && sudo apt install docker.io docker-compose git -y
+```
 
-> Сервер доступен по адресу: http://158.160.181.224:8000/
-
----
-
-Проект развивается пошагово. Все изменения коммитятся с понятными сообщениями. Цель — собрать надёжный backend для платформы онлайн-обучения.
+* Установите SSH-ключи для доступа GitHub Actions.
+* Клонируйте проект и создайте `.env` по `.env.example`.
+* Сервер доступен по адресу: http://158.160.181.224/
