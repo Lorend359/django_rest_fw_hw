@@ -3,7 +3,7 @@ name: Django CI/CD
 on:
   push:
     branches:
-      - feature/hw
+      - feature/hw_2
 
 jobs:
   build-and-deploy:
