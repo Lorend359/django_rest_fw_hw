@@ -13,8 +13,12 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from courses.models import Course
-from courses.services.stripe_services import (create_stripe_price, create_stripe_product, create_stripe_session,
-                                              get_stripe_session_status)
+from courses.services.stripe_services import (
+    create_stripe_price,
+    create_stripe_product,
+    create_stripe_session,
+    get_stripe_session_status,
+)
 
 from .models import CustomUser, Payment
 from .permissions import IsProfileOwner

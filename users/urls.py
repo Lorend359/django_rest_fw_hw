@@ -1,8 +1,14 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from .views import (CreatePaymentAPIView, CustomTokenObtainPairView, PaymentListAPIView, StripePaymentStatusAPIView,
-                    UserCreateAPIView, UserRetrieveUpdateAPIView)
+from .views import (
+    CreatePaymentAPIView,
+    CustomTokenObtainPairView,
+    PaymentListAPIView,
+    StripePaymentStatusAPIView,
+    UserCreateAPIView,
+    UserRetrieveUpdateAPIView,
+)
 
 urlpatterns = [
     path("profile/<int:pk>/", UserRetrieveUpdateAPIView.as_view(), name="user-profile"),
