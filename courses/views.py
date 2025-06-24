@@ -5,11 +5,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from users.permissions import IsNotModerator, IsOwner
+from users.tasks import send_course_update_email
 
 from .models import Course, Lesson, Subscription
 from .paginators import StandardPagination
 from .serializers import CourseSerializer, LessonSerializer
-from users.tasks import send_course_update_email
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -45,7 +45,6 @@ class CourseViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         self.check_object_permissions(request, instance)
         return super().destroy(request, *args, **kwargs)
-
 
 
 class LessonListCreateAPIView(generics.ListCreateAPIView):
