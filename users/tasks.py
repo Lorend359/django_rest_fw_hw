@@ -10,7 +10,8 @@ from .models import CustomUser
 
 @shared_task
 def send_course_update_email(course_id):
-    """Фоновая задача: отправка уведомлений подписчикам об обновлении курса, если курс не обновлялся последние 4 часа."""
+    """Фоновая задача: отправка уведомлений подписчикам об обновлении курса,
+    если курс не обновлялся последние 4 часа."""
 
     from courses.models import Course, Subscription
 
