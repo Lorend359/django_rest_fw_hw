@@ -54,10 +54,7 @@ jobs:
       - name: Lint (flake8)
         run: poetry run flake8 .
 
-      - name: Build Docker image
-        run: docker build -t test-image .
-
-      - name: Run tests
+      - name: Build and run tests
         run: poetry run python manage.py test
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
@@ -66,6 +63,17 @@ jobs:
           STRIPE_PUBLIC_KEY: ${{ secrets.STRIPE_PUBLIC_KEY }}
           REDIS_URL: ${{ secrets.REDIS_URL }}
           DEFAULT_FROM_EMAIL: ${{ secrets.DEFAULT_FROM_EMAIL }}
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/lms-app:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/lms-app:latest
 
       - name: Deploy to Server via SSH
         if: success()
@@ -77,5 +85,5 @@ jobs:
           script: |
             cd ~/project
             git pull origin ${{ github.ref_name }}
-            docker-compose down
-            docker-compose up -d --build
+            docker-compose pull
+            docker-compose up -d
