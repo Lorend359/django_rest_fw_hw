@@ -29,8 +29,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 DEBUG = env.bool("DEBUG", default=False)
 SECRET_KEY = env("SECRET_KEY")
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
-
+ALLOWED_HOSTS = [host.strip() for host in env.list("ALLOWED_HOSTS", default=[])]
 
 # Application definition
 
