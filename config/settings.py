@@ -13,8 +13,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
-from .celery import app as celery_app
+
 import environ
+
+from .celery import app as celery_app
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,8 +46,7 @@ INSTALLED_APPS = [
     "users",
     "courses",
     "drf_yasg",
-    'django_celery_beat',
-
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -81,6 +82,8 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+print("DEBUG:", env.bool("DEBUG", default=False))
+print("DATABASE_URL:", os.getenv("DATABASE_URL"))
 
 DATABASES = {
     "default": env.db(),

@@ -1,15 +1,17 @@
-from celery import shared_task
 from datetime import timedelta
-from django.utils import timezone
-from django.core.mail import send_mail
+
+from celery import shared_task
 from django.conf import settings
+from django.core.mail import send_mail
+from django.utils import timezone
 
 from .models import CustomUser
 
 
 @shared_task
 def send_course_update_email(course_id):
-    """Фоновая задача: отправка уведомлений подписчикам об обновлении курса, если курс не обновлялся последние 4 часа."""
+    """Фоновая задача: отправка уведомлений подписчикам об обновлении курса,
+    если курс не обновлялся последние 4 часа."""
 
     from courses.models import Course, Subscription
 

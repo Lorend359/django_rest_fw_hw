@@ -1,5 +1,7 @@
 from __future__ import absolute_import, unicode_literals
+
 import os
+
 from celery import Celery
 from celery.schedules import crontab
 
@@ -11,8 +13,8 @@ app.autodiscover_tasks()
 
 # Планировщик задач (celery-beat)
 app.conf.beat_schedule = {
-    'deactivate-inactive-users-every-day': {
-        'task': 'users.tasks.deactivate_inactive_users',
-        'schedule': crontab(hour=0, minute=0),
+    "deactivate-inactive-users-every-day": {
+        "task": "users.tasks.deactivate_inactive_users",
+        "schedule": crontab(hour=0, minute=0),
     },
 }
